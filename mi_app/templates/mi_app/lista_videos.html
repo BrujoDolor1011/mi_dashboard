@@ -1,0 +1,124 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Videos de YouTube{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Videos de YouTube</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+
+        h1, h2 {
+            text-shadow: 0 0 15px #0ff, 0 0 30px #00f;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            width: 50%;
+            margin: 0 auto;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        input:focus {
+            box-shadow: 0 0 10px #0ff;
+            outline: none;
+        }
+
+        .btn-save {
+            background: #0ff;
+            color: #000;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #0ff;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.2rem;
+        }
+
+        .btn-save:hover {
+            background: #ff0;
+            box-shadow: 0 0 20px #ff0;
+        }
+
+        .video-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transition: transform 0.3s ease-in-out;
+            width: 320px;
+        }
+
+        .video-card:hover {
+            transform: scale(1.05);
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .video-frame {
+            border-radius: 10px;
+            box-shadow: 0 0 10px #0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎥 Agregar Video de YouTube</h1>
+    <div class="form-container">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-save">💾 Guardar</button>
+        </form>
+    </div>
+
+    <h2>📺 Lista de Videos</h2>
+    <div class="video-list">
+        {% for video in videos %}
+            <div class="video-card">
+                <p class="video-title">{{ video.title }}</p>
+                <iframe class="video-frame" width="100%" height="180" src="{{ video.get_embed_url }}" allowfullscreen></iframe>
+            </div>
+        {% empty %}
+            <p>No hay videos agregados.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
+{% endblock %}

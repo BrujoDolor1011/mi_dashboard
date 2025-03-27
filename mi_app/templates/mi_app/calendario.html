@@ -1,0 +1,193 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}📅 Calendario{% endblock %}
+
+{% block content %}
+    <h2>📅 Calendario Interactivo</h2>
+    <div id="calendario"></div>
+
+    <!-- Modal para ingresar notas -->
+    <div id="notaModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalFecha"></h3>
+            <textarea id="modalContenido" rows="4" style="width: 100%;" placeholder="Escribe tu nota aquí..."></textarea>
+            <br><br>
+            <button class="btn-custom" onclick="guardarNota()">💾 Guardar</button>
+            <button class="btn-cancel" onclick="cerrarModal()">❌ Cancelar</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
+
+    <script>
+        let fechaSeleccionada = "";
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let calendarioEl = document.getElementById('calendario');
+            let calendario = new FullCalendar.Calendar(calendarioEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                selectable: true,
+                events: "/api/notas/",
+                eventColor: '#0ff',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                dateClick: function (info) {
+                    fechaSeleccionada = info.dateStr;
+
+                    fetch("/api/notas/")
+                        .then(response => response.json())
+                        .then(notas => {
+                            let notaExistente = notas.find(nota => nota.start === fechaSeleccionada);
+                            document.getElementById("modalFecha").innerText = "📝 Nota para " + fechaSeleccionada;
+                            document.getElementById("modalContenido").value = notaExistente ? notaExistente.title : "";
+                            document.getElementById("notaModal").style.display = "flex";
+                        });
+
+                    calendario.setOption('selectable', false);
+                }
+            });
+
+            calendario.render();
+        });
+
+        function guardarNota() {
+            let nuevaNota = document.getElementById("modalContenido").value;
+
+            fetch("/api/agregar_nota/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie('csrftoken')
+                },
+                body: JSON.stringify({ fecha: fechaSeleccionada, contenido: nuevaNota })
+            })
+            .then(response => response.json())
+            .then(() => {
+                cerrarModal();
+                location.reload();
+            });
+        }
+
+        function cerrarModal() {
+            document.getElementById("notaModal").style.display = "none";
+            let calendarioEl = document.getElementById('calendario');
+            let calendario = new FullCalendar.Calendar(calendarioEl);
+            calendario.setOption('selectable', true);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                let cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2rem;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #00f;
+        }
+
+        #calendario {
+            max-width: 80%;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            width: 350px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 15px #0ff;
+            color: #fff;
+        }
+
+        .btn-custom {
+            background: #0ff;
+            color: #000;
+            font-weight: bold;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #0ff;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .btn-custom:hover {
+            background: #ff0;
+            box-shadow: 0 0 15px #ff0;
+        }
+
+        .btn-cancel {
+            background: #ff4d4d;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ff4d4d;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover {
+            background: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+        }
+
+        textarea {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            resize: none;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 10px #0ff;
+            outline: none;
+        }
+    </style>
+{% endblock %}

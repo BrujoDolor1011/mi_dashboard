@@ -1,0 +1,119 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Lista de Actividades{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Actividades</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2rem;
+            text-shadow: 0 0 15px #0ff, 0 0 30px #00f;
+        }
+
+        .btn-new {
+            background: #0ff;
+            color: #000;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #0ff;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px auto;
+            font-size: 1.2rem;
+        }
+
+        .btn-new:hover {
+            background: #ff0;
+            box-shadow: 0 0 20px #ff0;
+        }
+
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            width: 60%;
+            margin: 20px auto;
+        }
+
+        .activity-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .activity-item:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-edit, .btn-delete {
+            display: inline-block;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            background: #ff0;
+            color: #000;
+            box-shadow: 0 0 10px #ff0;
+        }
+
+        .btn-edit:hover {
+            box-shadow: 0 0 15px #ff0;
+            background: #ffd700;
+        }
+
+        .btn-delete {
+            background: #ff4d4d;
+            color: white;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        .btn-delete:hover {
+            box-shadow: 0 0 15px #ff0000;
+            background: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h2>📋 Actividades Mensuales</h2>
+    <a href="{% url 'crear_actividad' %}" class="btn-new">➕ Nueva Actividad</a>
+
+    <ul class="activity-list">
+        {% for actividad in actividades %}
+            <li class="activity-item">
+                <strong>{{ actividad.titulo }}</strong>
+                <br>📅 {{ actividad.fecha_inicio }} - {{ actividad.fecha_fin }}
+                <br>📝 {{ actividad.descripcion }}
+                <br>
+                <a href="{% url 'editar_actividad' actividad.id %}" class="btn-edit">✏️ Editar</a>
+                <a href="{% url 'eliminar_actividad' actividad.id %}" class="btn-delete">🗑️ Eliminar</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+{% endblock %}
